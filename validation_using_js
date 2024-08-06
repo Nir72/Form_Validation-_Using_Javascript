@@ -1,0 +1,70 @@
+function onSave() {
+	var objTop = top.frames['divframe'].frames['windowframe'].frames['contentframe'];
+	var obj = objTop.document.forms[0];
+	var modeValue = obj.mode.value;
+
+	// Collect form field values
+	var name = obj.name.value.trim();
+	var email = obj.email.value.trim();
+	var dob = obj.dob.value.trim();
+	var city = obj.city.value;
+	var mobilenumber = obj.mobilenumber.value.trim();
+
+	// Collect selected hobbies
+	var selectedHobbies = [];
+	var hobbyElements = obj.querySelectorAll('input[name="hobby"]:checked');
+
+	hobbyElements.forEach((checkbox) => {
+		selectedHobbies.push(checkbox.value);
+	});
+
+	var hobbiesString = selectedHobbies.join(',');
+	console.log(hobbiesString);
+
+	var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+	// Date of birth validation
+	var today = new Date();
+	var birthDate = new Date(dob);
+	var age = today.getFullYear() - birthDate.getFullYear();
+	var monthDifference = today.getMonth() - birthDate.getMonth();
+
+	if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+		age--;
+	}
+
+	// Validation checks using else if
+	if (!name) {
+		alert("Name must be filled out.");
+	} else if (!email) {
+		alert("Email must be filled out.");
+	} else if (!emailPattern.test(email)) {
+		alert("Please enter a valid email address.");
+	} else if (!dob) {
+		alert("Date of birth must be filled out.");
+	} else if (birthDate > today) {
+		alert("Date of birth cannot be in the future.");
+	} else if (age < 18) {
+		alert("You must be at least 18 years old.");
+	} else if (city === "-1") {
+		alert("City must be selected.");
+	} else if (!mobilenumber) {
+		alert("Mobile number must be filled out.");
+	} else if (selectedHobbies.length === 0) {
+		alert("At least one hobby must be selected.");
+	} else {
+		// Set the hidden field value for hobbies
+		var hobbyField = obj.querySelector('input[type="hidden"][name="hobby"]');
+		if (hobbyField) {
+			hobbyField.value = hobbiesString;
+		} else {
+			console.error("Hidden hobby input field is not found.");
+			return false;
+		}
+
+		// Submit the form if all validations pass
+		objTop.doSubmit(modeValue);
+	}
+
+//	return true;
+}
